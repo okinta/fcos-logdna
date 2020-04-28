@@ -55,8 +55,8 @@ RUN set -x \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
-COPY fluent.conf /fluentd/etc/fluent.conf.template
-COPY entrypoint.sh /bin
-RUN chmod a+x /bin/entrypoint.sh
+COPY files /
+RUN chmod a+x /bin/entrypoint.sh \
+    && chown fluent:fluent /fluentd/etc/fluent.conf
 
 USER fluent
