@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 
 # Wait for Vault to be ready so we can pull config from it
-wait-for-it -t 0 "vault.in.okinta.ge:7020"
+until wait-for-it "vault.in.okinta.ge:7020"; do
+    sleep 1
+done
 
 # Grab LogDNA's ingestion key so we can forward logs
 LOGDNA_INGESTION_KEY=$(wget -q -O - http://vault.in.okinta.ge:7020/api/kv/logdna_ingestion_key)
