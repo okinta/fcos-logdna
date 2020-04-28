@@ -1,2 +1,3 @@
-# fcos-logdna
-LogDNA configuration for Fedora CoreOS
+# README
+
+LogDNA configuration for Fedora CoreOS.
