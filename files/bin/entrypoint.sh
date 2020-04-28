@@ -5,11 +5,11 @@ wait-for-it -t 0 "vault.in.okinta.ge:7020"
 
 # Grab LogDNA's ingestion key so we can forward logs
 LOGDNA_INGESTION_KEY=$(wget -q -O - http://vault.in.okinta.ge:7020/api/kv/logdna_ingestion_key)
-export LOGDNA_INGESTION_KEY
-if [ -z "$LOGDNA_INGESTION_KEY" ]; then
+while [ -z "$LOGDNA_INGESTION_KEY" ]; do
     echo "Could not obtain LogDNA ingestion key from Vault" >&2
-    exit 1
-fi
+    sleep 5
+done
+export LOGDNA_INGESTION_KEY
 
 envsubst < /fluentd/etc/fluent.conf.template > /fluentd/etc/fluent.conf
 
