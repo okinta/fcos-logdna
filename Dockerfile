@@ -60,3 +60,4 @@ RUN chmod a+x /bin/entrypoint.sh \
     && chown fluent:fluent /fluentd/etc/fluent.conf
 
 USER fluent
+RUN mkdir /fluentd/log/journal
