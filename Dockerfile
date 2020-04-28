@@ -57,6 +57,8 @@ RUN set -x \
 
 COPY files /
 RUN chmod a+x /bin/entrypoint.sh \
-    && chown fluent:fluent /fluentd/etc/fluent.conf
+    && mkdir /var/log/fluent \
+    && chown fluent:fluent /fluentd/etc/fluent.conf \
+    && chown -R fluent:fluent /var/log/fluent
 
 USER fluent
