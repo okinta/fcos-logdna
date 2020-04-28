@@ -7,7 +7,7 @@
 
   <storage>
     @type local
-    path /var/log/fluentd-journald-kubelet-cursor.json
+    path /fluentd/log/fluentd-journald-kubelet-cursor.json
   </storage>
 
   <entry>
@@ -21,7 +21,3 @@
   api_key $LOGDNA_INGESTION_KEY
   hostname "#{Socket.gethostname}"
 </match>
-
-<system>
-  root_dir /var/log/fluentd
-</system>
