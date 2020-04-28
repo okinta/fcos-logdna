@@ -40,6 +40,9 @@ RUN set -x \
         # Install systemd dependency
         libsystemd0 \
 
+        # Install wget so we can communicate with Vault
+        ca-certificates wget \
+
     # Install fluentd plugins
     && gem install fluent-plugin-logdna -v 0.2.3 \
     && gem install fluent-plugin-systemd -v 1.0.1 \
