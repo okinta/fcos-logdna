@@ -2,7 +2,7 @@
 
 # Wait for Vault to be ready so we can pull config from it
 if ! wait-for-it "vault.in.okinta.ge:7020"; then
-    exit $?
+    exit 1
 fi
 
 # Grab LogDNA's ingestion key so we can forward logs
