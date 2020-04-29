@@ -4,7 +4,7 @@
 wait-for-it vault.in.okinta.ge:7020
 
 # Grab LogDNA's ingestion key so we can forward logs
-LOGDNA_INGESTION_KEY=$(wget -q -O - http://vault.in.okinta.ge:7020/api/kv/logdna_ingestion_key)
+LOGDNA_INGESTION_KEY=$(timeout 5s wget -q -O - http://vault.in.okinta.ge:7020/api/kv/logdna_ingestion_key)
 export LOGDNA_INGESTION_KEY
 if [ -z "$LOGDNA_INGESTION_KEY" ]; then
     echo "Could not obtain LogDNA ingestion key from Vault" >&2
