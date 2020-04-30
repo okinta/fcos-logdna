@@ -17,6 +17,12 @@ RUN wget -q -O wait-for-it.zip \
     && mv wait-for-it-master/wait-for-it.sh /deps/usr/local/bin/wait-for-it \
     && chmod o+x /deps/usr/local/bin/wait-for-it
 
+# Install gettext for envsubst
+RUN apt-get install --no-install-recommends -y gettext-base \
+    && mkdir -p /deps/usr/bin \
+    && cp /usr/bin/envsubst /deps/usr/bin \
+    && chmod o+x /deps/usr/bin/envsubst
+
 COPY files /deps
 RUN chmod a+x /deps/bin/entrypoint.sh
 

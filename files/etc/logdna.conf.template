@@ -1,0 +1,3 @@
+hostname = $HOSTNAME
+key = $INGESTION_KEY
+tags = $TAG
