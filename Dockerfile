@@ -23,28 +23,20 @@ RUN apt-get install --no-install-recommends -y gettext-base \
     && cp /usr/bin/envsubst /deps/usr/bin \
     && chmod o+x /deps/usr/bin/envsubst
 
+# Download logdna-agent
+RUN mkdir -p /deps/usr/local/bin \
+    && wget -q -O /deps/usr/local/bin/logdna-agent \
+        https://s3.okinta.ge/logdna-agent-b793918006f255887d4c6a67224f5c1e84a68615 \
+    && chmod o+x /deps/usr/local/bin/logdna-agent
+
 COPY files /deps
 RUN chmod a+x /deps/bin/entrypoint.sh
 
 FROM ubuntu:$UBUNTU_VERSION
 
-RUN set -x \
-
-    # Install LogDNA agent
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        ca-certificates \
-        gnupg \
-        wget \
-    && echo "deb http://repo.logdna.com stable main" > \
-        /etc/apt/sources.list.d/logdna.list \
-    && wget -q -O - https://repo.logdna.com/logdna.gpg | apt-key add - \
-    && apt-get update \
-    && apt-get -y install logdna-agent \
-
-    # Install systemd so we can read logs via journalctl
+# Install systemd so we can read logs via journalctl
+RUN apt-get update \
     && apt-get install -y --no-install-recommends systemd \
-
     && rm -rf /var/lib/apt/lists/*
 
 # Pull in what we need from the builder container
