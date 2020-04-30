@@ -1,3 +1,4 @@
 hostname = $HOSTNAME
 key = $INGESTION_KEY
+logdir = /usr/src
 tags = $TAG
