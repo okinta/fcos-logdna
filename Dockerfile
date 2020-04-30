@@ -42,8 +42,8 @@ RUN set -x \
     && apt-get update \
     && apt-get -y install logdna-agent \
 
-    # Install systemd dependency so we can read logs via journalctl
-    && apt-get install -y --no-install-recommends libsystemd0 \
+    # Install systemd so we can read logs via journalctl
+    && apt-get install -y --no-install-recommends systemd \
 
     && rm -rf /var/lib/apt/lists/*
 
