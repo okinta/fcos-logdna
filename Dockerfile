@@ -39,6 +39,13 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends systemd \
     && rm -rf /var/lib/apt/lists/*
 
+# Install wget so we can talk to Vault
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates \
+        wget \
+    && rm -rf /var/lib/apt/lists/*
+
 # Pull in what we need from the builder container
 COPY --from=0 /deps /
 
