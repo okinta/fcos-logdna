@@ -1,6 +1,5 @@
-FROM fluent/fluentd:v1.9-debian-1
-
-USER root
+ARG UBUNTU_VERSION=18.04
+FROM ubuntu:$UBUNTU_VERSION
 
 # Install tools to install other tools
 RUN apt-get update \
@@ -8,11 +7,6 @@ RUN apt-get update \
         ca-certificates \
         unzip \
         wget
-
-# Install gettext for envsubst
-RUN apt-get install --no-install-recommends -y gettext-base \
-    && mkdir -p /deps/usr/bin \
-    && cp /usr/bin/envsubst /deps/usr/bin
 
 # Grab wait-for-it script so we know when Vault is ready
 RUN wget -q -O wait-for-it.zip \
@@ -23,41 +17,32 @@ RUN wget -q -O wait-for-it.zip \
     && mv wait-for-it-master/wait-for-it.sh /deps/usr/local/bin/wait-for-it \
     && chmod o+x /deps/usr/local/bin/wait-for-it
 
-FROM fluent/fluentd:v1.9-debian-1
+COPY files /deps
+RUN chmod a+x /deps/bin/entrypoint.sh
 
-USER root
+FROM ubuntu:$UBUNTU_VERSION
+
+RUN set -x \
+
+    # Install LogDNA agent
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        gnupg \
+        wget \
+    && echo "deb http://repo.logdna.com stable main" > \
+        /etc/apt/sources.list.d/logdna.list \
+    && wget -q -O - https://repo.logdna.com/logdna.gpg | apt-key add - \
+    && apt-get update \
+    && apt-get -y install logdna-agent \
+
+    # Install systemd dependency so we can read logs via journalctl
+    && apt-get install -y --no-install-recommends libsystemd0 \
+
+    && rm -rf /var/lib/apt/lists/*
 
 # Pull in what we need from the builder container
 COPY --from=0 /deps /
 
-RUN set -x \
-
-    # Install build dependencies for fluentd plugins
-    && buildDeps="sudo make gcc g++ libc-dev" \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends $buildDeps \
-
-        # Install systemd dependency
-        libsystemd0 \
-
-        # Install wget so we can communicate with Vault
-        ca-certificates wget \
-
-    # Install fluentd plugins
-    && gem install fluent-plugin-logdna -v 0.2.3 \
-    && gem install fluent-plugin-systemd -v 1.0.1 \
-
-    # Cleanup
-    && SUDO_FORCE_REMOVE=yes \
-        apt-get purge -y --auto-remove \
-        -o APT::AutoRemove::RecommendsImportant=false \
-        $buildDeps \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
-
-COPY files /
-RUN chmod a+x /bin/entrypoint.sh \
-    && chown fluent:fluent /fluentd/etc/fluent.conf
-
-USER fluent
-RUN mkdir /fluentd/log/journal
+ENTRYPOINT ["/bin/entrypoint.sh"]
+CMD ["agent"]

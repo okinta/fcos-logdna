@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Wait for Vault to be ready so we can pull config from it
 wait-for-it vault.in.okinta.ge:7020
@@ -11,34 +11,12 @@ if [ -z "$LOGDNA_INGESTION_KEY" ]; then
     exit 1
 fi
 
-envsubst < /fluentd/etc/fluent.conf.template > /fluentd/etc/fluent.conf
+export usejournald=files
+logdna-agent -k "$LOGDNA_INGESTION_KEY"
 
-# The following is copied from:
-# https://github.com/fluent/fluentd-docker-image/blob/db20ab074c179bc19002f42e493e21a568d39db5/v1.9/debian/entrypoint.sh
+if [ "$1" = "agent" ]; then
+    exec logdna-agent start
 
-#source vars if file exists
-DEFAULT=/etc/default/fluentd
-
-if [ -r $DEFAULT ]; then
-    set -o allexport
-    . $DEFAULT
-    set +o allexport
+else
+    exec "$@"
 fi
-
-# If the user has supplied only arguments append them to `fluentd` command
-if [ "${1#-}" != "$1" ]; then
-    set -- fluentd "$@"
-fi
-
-# If user does not supply config file or plugins, use the default
-if [ "$1" = "fluentd" ]; then
-    if ! echo $@ | grep ' \-c' ; then
-       set -- "$@" -c /fluentd/etc/${FLUENTD_CONF}
-    fi
-
-    if ! echo $@ | grep ' \-p' ; then
-       set -- "$@" -p /fluentd/plugins
-    fi
-fi
-
-exec "$@"
