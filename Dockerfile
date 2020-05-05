@@ -29,6 +29,10 @@ RUN mkdir -p /deps/usr/local/bin \
         https://s3.okinta.ge/logdna-agent-b793918006f255887d4c6a67224f5c1e84a68615 \
     && chmod o+x /deps/usr/local/bin/logdna-agent
 
+# Install tini just for some extra safety in case there are any zombies
+RUN wget -q -O /deps/usr/local/bin/tini https://s3.okinta.ge/tini-amd64-0.19.0 \
+    && chmod o+x /deps/usr/local/bin/tini
+
 COPY files /deps
 RUN chmod a+x /deps/bin/entrypoint.sh
 
@@ -49,5 +53,5 @@ RUN apt-get update \
 # Pull in what we need from the builder container
 COPY --from=0 /deps /
 
-ENTRYPOINT ["/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/tini", "--", "/bin/entrypoint.sh"]
 CMD ["agent"]
